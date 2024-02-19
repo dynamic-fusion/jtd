@@ -8,9 +8,11 @@ function App() {
   const [isDarkTheme, setIsDarkTheme] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [source, setSource] = useState('articles.json'); // New state for managing the source
 
-  useEffect(() => {
-    fetch('articles.json')
+useEffect(() => {
+    setIsLoading(true); // Set loading state
+    fetch(source) // Use the 'source' state to determine which JSON file to fetch
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -25,15 +27,22 @@ function App() {
         if (todayIndex !== -1) {
           setCurrentArticleIndex(todayIndex);
         } else {
-          setError('Geen artikel gevonden');
+          setError('Geen artikel gevonden voor vandaag.');
         }
-        setIsLoading(false);
       })
       .catch((error) => {
         setError(error.message);
-        setIsLoading(false);
+      })
+      .finally(() => {
+        setIsLoading(false); // Reset loading state
       });
-  }, []);
+  }, [source]); // Add 'source' to the dependency array
+
+  const toggleSource = () => {
+    const newSource = source === 'articles.json' ? 'sp.json' : 'articles.json';
+    setSource(newSource);
+    setCurrentArticleIndex(null); // Reset current article index
+  };
 
   const toggleTheme = () => {
     setIsDarkTheme(!isDarkTheme);
@@ -63,6 +72,9 @@ function App() {
       <div style={{ marginBottom: '20px' }}>
         <button onClick={() => adjustTextSize(2)}>A+</button>
         <button onClick={() => adjustTextSize(-2)}>A-</button>
+         <button onClick={toggleSource}>
+          {source === 'articles.json' ? 'Switch to Spiritual Principles a Day' : 'Switch to Just For Today'}
+        </button>
         <button onClick={toggleTheme}>Invert Colors</button>
       </div>
       <div>
